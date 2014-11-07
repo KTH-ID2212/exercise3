@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+             version="2.0">
+
+    <persistence-unit name="bank" transaction-type="RESOURCE_LOCAL">
+        <provider>
+            org.eclipse.persistence.jpa.PersistenceProvider
+        </provider>
+
+        <class>se.kth.id2212.ex3.bankjpa.Account</class>
+        <class>se.kth.id2212.ex3.bankjpa.Owner</class>
+
+        <properties>
+            <property name="eclipselink.ddl-generation" value="drop-and-create-tables"/>
+            <property name="eclipselink.ddl-generation.output-mode" value="database"/>
+            <property name="eclipselink.logging.level" value="INFO"/>
+            <property name="javax.persistence.jdbc.password" value="carbone"/>
+            <property name="javax.persistence.jdbc.user" value="carbone"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:derby://localhost:1527/bank"/>
+            <property name="javax.persistence.jdbc.driver" value="org.apache.derby.jdbc.EmbeddedDriver"/>
+        </properties>
+    </persistence-unit>
+
+</persistence>
