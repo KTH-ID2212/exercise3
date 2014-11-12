@@ -48,10 +48,7 @@ public class BankImpl extends UnicastRemoteObject implements Bank {
 
     private Connection getConnection()
             throws ClassNotFoundException, SQLException {
-        if (dbms.equalsIgnoreCase("access")) {
-            Class.forName("sun.jdbc.odbc.JdbcOdbcDriver");
-            return DriverManager.getConnection("jdbc:odbc:" + datasource);
-        } else if (dbms.equalsIgnoreCase("cloudscape")) {
+        if (dbms.equalsIgnoreCase("cloudscape")) {
             Class.forName("COM.cloudscape.core.RmiJdbcDriver");
             return DriverManager.getConnection(
                     "jdbc:cloudscape:rmi://localhost:1099/" + datasource
