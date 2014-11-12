@@ -10,7 +10,7 @@ import java.util.StringTokenizer;
 public class FileLoader {
     private static final String USAGE
             = "USAGE: java bankjdbc.FileLoader filename bankname [datasource] "
-                      + "[dbms: access, derby, pointbase, cloudscape, mysql]";
+                      + "[dbms: derby, pointbase, cloudscape, mysql]";
     private Connection conn;
     private File fileToLoad;
     private String bankName;
