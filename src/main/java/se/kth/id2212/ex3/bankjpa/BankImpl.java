@@ -1,9 +1,13 @@
 package se.kth.id2212.ex3.bankjpa;
 
-import javax.persistence.*;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityTransaction;
+import javax.persistence.NoResultException;
+import javax.persistence.Persistence;
 
 @SuppressWarnings("serial")
 public class BankImpl extends UnicastRemoteObject implements Bank
