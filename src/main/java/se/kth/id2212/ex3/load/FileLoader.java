@@ -4,13 +4,18 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.StringTokenizer;
 
 public class FileLoader {
     private static final String USAGE
             = "USAGE: java bankjdbc.FileLoader filename bankname [datasource] "
-                      + "[dbms: derby, pointbase, cloudscape, mysql]";
+              + "[dbms: derby, mysql]";
     private Connection conn;
     private File fileToLoad;
     private String bankName;
@@ -24,18 +29,7 @@ public class FileLoader {
 
     private void createDatabase(String bankName, String datasource, String dbms)
             throws ClassNotFoundException, SQLException {
-        if (dbms.equalsIgnoreCase("cloudscape")) {
-            Class.forName("COM.cloudscape.core.RmiJdbcDriver");
-            conn = DriverManager.getConnection(
-                    "jdbc:cloudscape:rmi://localhost:1099/" + datasource
-                            + ";create=true;");
-        } else if (dbms.equalsIgnoreCase("pointbase")) {
-            Class.forName("com.pointbase.jdbc.jdbcUniversalDriver");
-            conn = DriverManager.getConnection(
-                    "jdbc:pointbase:server://localhost:9092/" + datasource + ",new",
-                    "PBPUBLIC",
-                    "PBPUBLIC");
-        } else if (dbms.equalsIgnoreCase("derby")) {
+        if (dbms.equalsIgnoreCase("derby")) {
             Class.forName("org.apache.derby.jdbc.ClientXADataSource");
             conn = DriverManager.getConnection(
                     "jdbc:derby://localhost:1527/" + datasource + ";create=true");
@@ -43,6 +37,9 @@ public class FileLoader {
             Class.forName("com.mysql.jdbc.Driver");
             conn = DriverManager.getConnection(
                     "jdbc:mysql://localhost:3306/" + datasource, "root", "javajava");
+        } else {
+            System.out.println("Unknown dbms");
+            System.exit(-1);
         }
 
         ResultSet result = conn.getMetaData().getTables(null, null, bankName, null);
@@ -60,8 +57,8 @@ public class FileLoader {
     private void loadFile() throws LoadException {
         try {
             try (PreparedStatement stmt = conn.prepareStatement("INSERT INTO " + bankName
-                                                                        + " VALUES (?, ?)");
-                    BufferedReader reader = new BufferedReader(new FileReader(fileToLoad))) {
+                                                                + " VALUES (?, ?)");
+                 BufferedReader reader = new BufferedReader(new FileReader(fileToLoad))) {
                 System.out.println("Loading file <" + fileToLoad + ">\n");
 
                 while (reader.ready()) {
@@ -92,19 +89,19 @@ public class FileLoader {
     private void readDb() throws LoadException {
         try {
             try (Statement stmt = conn.createStatement();
-                    ResultSet result = stmt.executeQuery("SELECT * FROM " + bankName)) {
+                 ResultSet result = stmt.executeQuery("SELECT * FROM " + bankName)) {
                 System.out.println("Loading accounts from database: ");
                 int row = 1;
                 while (result.next()) {
                     System.out.println("Row " + row + ": "
-                                               + result.getString("name") + " - $"
-                                               + result.getFloat("balance"));
+                                       + result.getString("name") + " - $"
+                                       + result.getFloat("balance"));
                     row++;
                 }
             }
         } catch (SQLException sqle) {
             System.out.println(sqle.getClass().getName() + " caught: "
-                                       + sqle.getMessage());
+                               + sqle.getMessage());
             throw new LoadException("Could not read from database.", sqle);
         }
     }
@@ -145,7 +142,7 @@ public class FileLoader {
             app.loadFile();
             app.readDb();
             app.close();
-        } catch (Exception e) {
+        } catch (ClassNotFoundException | SQLException | LoadException e) {
             e.printStackTrace();
             System.out.println(USAGE);
         }

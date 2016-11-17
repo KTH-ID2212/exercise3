@@ -1,6 +1,10 @@
 package se.kth.id2212.ex3.testjdbc;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.Statement;
 
 public class TestJDBC {
     private Connection conn;
@@ -10,8 +14,6 @@ public class TestJDBC {
     private PreparedStatement selectStatement;
     private PreparedStatement deleteStatement;
     private boolean initialized;
-    private String dbms = "derby";
-    private String datasource = "mydb";
 
     public static void main(String[] args) {
         TestJDBC tester = new TestJDBC();
@@ -19,14 +21,14 @@ public class TestJDBC {
             tester.connect(args);
             tester.createTable();
             tester.selectAll();
-            tester.insert("Vlad", 1234);
-            tester.insert("Leif", 4321);
-            tester.insert("Paris", 4322);
-            tester.insert("Hooman", 2323);
+            tester.insert("Olle", 1234);
+            tester.insert("Stina", 4321);
+            tester.insert("Fia", 4322);
+            tester.insert("Pelle", 2323);
             tester.selectAll();
-            tester.update("Vlad", 7888);
+            tester.update("Stina", 7888);
             tester.selectAll();
-//            tester.delete("Hooman");
+            tester.delete("Olle");
             tester.selectAll();
 //            tester.dropTable();
             tester.close();
@@ -36,6 +38,9 @@ public class TestJDBC {
     }
 
     private void connect(String[] args) throws Exception {
+        String dbms = "derby";
+        String datasource = "mydb";
+
         if (args.length > 0) {
             dbms = args[0];
         }
@@ -43,17 +48,7 @@ public class TestJDBC {
             datasource = args[1];
         }
 
-        if (dbms.equalsIgnoreCase("cloudscape")) {
-            Class.forName("COM.cloudscape.core.RmiJdbcDriver");
-            conn = DriverManager.getConnection(
-                    "jdbc:cloudscape:rmi://localhost:1099/" + datasource + ";create=true;");
-        } else if (dbms.equalsIgnoreCase("pointbase")) {
-            Class.forName("com.pointbase.jdbc.jdbcUniversalDriver");
-            conn = DriverManager.getConnection(
-                    "jdbc:pointbase:server://localhost:9092/" + datasource + ",new",
-                    "PBPUBLIC",
-                    "PBPUBLIC");
-        } else if (dbms.equalsIgnoreCase("derby")) {
+        if (dbms.equalsIgnoreCase("derby")) {
             Class.forName("org.apache.derby.jdbc.ClientXADataSource");
             conn = DriverManager.getConnection(
                     "jdbc:derby://localhost:1527/" + datasource + ";create=true");
@@ -61,6 +56,9 @@ public class TestJDBC {
             Class.forName("com.mysql.jdbc.Driver");
             conn = DriverManager.getConnection(
                     "jdbc:mysql://localhost:3306/" + datasource, "root", "javajava");
+        } else {
+            System.out.println("Unknown dbms");
+            System.exit(-1);
         }
 
         statement = conn.createStatement();
